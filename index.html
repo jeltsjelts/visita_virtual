@@ -178,36 +178,46 @@
   </div>
 
   <script>
-    // Dicionário com todas as cenas e seus links posicionados (Top/Left em %)
     const scenes = {
       alpendre: {
         title: "Alpendre Este (Entrada)",
         subtitle: "Pavimento Térreo",
-        image: "imagens/5 detalhe face leste 2.jpg",
+        image: "imagens/alpendre.jpg",
         nodeId: "node-alpendre",
         hotspots: [
           { top: "60%", left: "32%", text: "Entrar no Hall ➜", target: "hall" }
         ]
       },
       hall: {
-        title: "Hall de Entrada",
+        title: "Hall de Entrada (Visão Norte)",
         subtitle: "Salão Principal - Pavimento Térreo",
-        image: "imagens/17 parede norte do hall de entrada.jpg",
+        image: "imagens/hall.jpg",
         nodeId: "node-hall",
         hotspots: [
           { top: "52%", left: "35%", text: "Acessar Quarto 3 ➜", target: "quarto3" },
+          { top: "52%", left: "65%", text: "Acessar Quarto 4 ➜", target: "quarto4" },
           { top: "85%", left: "15%", text: "⬅ Corredor Oeste", target: "corredor_oeste" },
           { top: "85%", left: "85%", text: "Quarto 1 (Sul) ➜", target: "quarto1" },
-          { top: "90%", left: "50%", text: "⬇ Voltar ao Alpendre", target: "alpendre" }
+          { top: "90%", left: "50%", text: "Olhar para Saída / Alpendre ⬇", target: "hall_leste" }
+        ]
+      },
+      hall_leste: {
+        title: "Hall de Entrada (Visão Leste)",
+        subtitle: "Acesso ao Alpendre - Pavimento Térreo",
+        image: "imagens/hall_leste.jpg",
+        nodeId: "node-hall",
+        hotspots: [
+          { top: "55%", left: "78%", text: "Sair para o Alpendre ➜", target: "alpendre" },
+          { top: "90%", left: "50%", text: "⬅ Virar para o Hall Central", target: "hall" }
         ]
       },
       corredor_oeste: {
         title: "Corredor e Saída Oeste",
         subtitle: "Ala Oeste - Pavimento Térreo",
-        image: "imagens/24 visão da saída oeste.jpg",
+        image: "imagens/corredor_oeste.jpg",
         nodeId: "node-corredor",
         hotspots: [
-          { top: "85%", left: "50%", text: "➜ Entrar no Hall de Entrada", target: "hall" },
+          { top: "85%", left: "50%", text: "➜ Entrar no Hall de Entrada", target: "hall_leste" },
           { top: "65%", left: "20%", text: "⬅ Sala da Administração", target: "porta_adm" },
           { top: "90%", left: "20%", text: "⬅ Quarto 2 (Arqueologia)", target: "quarto2" }
         ]
@@ -215,7 +225,7 @@
       porta_adm: {
         title: "Entrada da Sala de Administração",
         subtitle: "Vão de acesso administrativo",
-        image: "imagens/21 porta da sala de administração.jpg",
+        image: "imagens/porta_adm.jpg",
         nodeId: "node-adm",
         hotspots: [
           { top: "55%", left: "48%", text: "Entrar na Sala ➜", target: "sala_adm" },
@@ -225,7 +235,7 @@
       sala_adm: {
         title: "Sala de Administração",
         subtitle: "Ala Oeste Técnica",
-        image: "imagens/30 visão janela da sala adm.jpg",
+        image: "imagens/sala_adm.jpg",
         nodeId: "node-adm",
         hotspots: [
           { top: "90%", left: "50%", text: "⬇ Sair para o Corredor", target: "corredor_oeste" }
@@ -234,7 +244,7 @@
       quarto1: {
         title: "Quarto 1 Sul",
         subtitle: "Pavimento Térreo",
-        image: "imagens/9 entrada quarto 1 sul.jpg",
+        image: "imagens/quarto1.jpg",
         nodeId: "node-quarto1",
         hotspots: [
           { top: "45%", left: "26%", text: "Subir Escada ⬆", target: "sotao_sul" },
@@ -244,7 +254,7 @@
       sotao_sul: {
         title: "Pavimento Superior Sul (Sótão)",
         subtitle: "Mezanino Superior",
-        image: "imagens/34 visão pavimento superior face sul topo da escada.jpg",
+        image: "imagens/sotao_sul.jpg",
         nodeId: "node-quarto1",
         hotspots: [
           { top: "50%", left: "50%", text: "Avançar no Mezanino ➜", target: "sotao_sul_oeste" },
@@ -254,7 +264,7 @@
       sotao_sul_oeste: {
         title: "Pavimento Superior Sul (Extremidade)",
         subtitle: "Estrutura do Telhado e Taipa",
-        image: "imagens/36 visão pavimento superior sul lado oeste.jpg",
+        image: "imagens/sotao_sul_oeste.jpg",
         nodeId: "node-quarto1",
         hotspots: [
           { top: "85%", left: "50%", text: "⬇ Retornar à Escada", target: "sotao_sul" }
@@ -263,7 +273,7 @@
       quarto2: {
         title: "Quarto 2 Sul (Núcleo Arqueológico)",
         subtitle: "Parede sem reboco e Cava",
-        image: "imagens/10 entrada quarto 2 sul parede sem reboco leste.jpg",
+        image: "imagens/quarto2.jpg",
         nodeId: "node-quarto2",
         hotspots: [
           { top: "55%", left: "70%", text: "Aproximar da Escavação ➜", target: "quarto2_detalhe" },
@@ -273,7 +283,7 @@
       quarto2_detalhe: {
         title: "Quarto 2 Sul (Cava Arqueológica)",
         subtitle: "Prospecção do Solo e Alvenaria",
-        image: "imagens/27 visão do quarto 2 sul parede sul e oeste.jpg",
+        image: "imagens/quarto2_detalhe.jpg",
         nodeId: "node-quarto2",
         hotspots: [
           { top: "90%", left: "50%", text: "⬇ Voltar à Entrada do Quarto", target: "quarto2" }
@@ -282,7 +292,7 @@
       quarto3: {
         title: "Quarto 3 Norte",
         subtitle: "Salão de Exposições Norte",
-        image: "imagens/25 visao das paredes norte e oeste do quarto 3 norte.jpg",
+        image: "imagens/quarto3.jpg",
         nodeId: "node-quarto3",
         hotspots: [
           { top: "45%", left: "52%", text: "Aproximar da Escada ➜", target: "quarto3_escada" },
@@ -292,20 +302,39 @@
       quarto3_escada: {
         title: "Escada do Quarto 3 Norte",
         subtitle: "Acesso ao Sótão Norte",
-        image: "imagens/29 visao escada quarto 3 norte.jpg",
+        image: "imagens/quarto3_escada.jpg",
         nodeId: "node-quarto3",
         hotspots: [
           { top: "25%", left: "50%", text: "Subir ao Sótão Norte ⬆", target: "sotao_norte" },
           { top: "90%", left: "50%", text: "⬇ Voltar ao Quarto 3", target: "quarto3" }
         ]
       },
+      quarto4: {
+        title: "Quarto 4 Norte",
+        subtitle: "Sala de Exposições Nordeste",
+        image: "imagens/quarto4.jpg",
+        nodeId: "node-quarto4",
+        hotspots: [
+          { top: "90%", left: "50%", text: "⬇ Voltar ao Hall", target: "hall" }
+        ]
+      },
       sotao_norte: {
-        title: "Pavimento Superior Norte",
+        title: "Pavimento Superior Norte (Parede Oeste)",
         subtitle: "Mezanino Norte Fechado",
-        image: "imagens/31 visao parede oeste piso superior norte.jpg",
+        image: "imagens/sotao_norte.jpg",
         nodeId: "node-quarto3",
         hotspots: [
+          { top: "50%", left: "65%", text: "Olhar para Norte / Janela ➜", target: "sotao_norte_detalhe" },
           { top: "90%", left: "50%", text: "⬇ Descer para o Quarto 3", target: "quarto3_escada" }
+        ]
+      },
+      sotao_norte_detalhe: {
+        title: "Pavimento Superior Norte (Paredes Norte e Oeste)",
+        subtitle: "Esquadria e Vigamento Superior",
+        image: "imagens/sotao_norte_detalhe.jpg",
+        nodeId: "node-quarto3",
+        hotspots: [
+          { top: "90%", left: "50%", text: "⬇ Voltar à Vista Anterior", target: "sotao_norte" }
         ]
       }
     };
@@ -314,11 +343,9 @@
       const scene = scenes[sceneKey];
       if (!scene) return;
 
-      // Atualiza textos
       document.getElementById('title').innerText = scene.title;
       document.getElementById('subtitle').innerText = scene.subtitle;
 
-      // Atualiza imagem
       const img = document.getElementById('scene-img');
       img.style.opacity = '0.2';
       setTimeout(() => {
@@ -326,7 +353,6 @@
         img.onload = () => { img.style.opacity = '1'; };
       }, 150);
 
-      // Atualiza Hotspots
       const container = document.getElementById('hotspots');
       container.innerHTML = '';
       scene.hotspots.forEach(spot => {
@@ -339,13 +365,11 @@
         container.appendChild(btn);
       });
 
-      // Atualiza pontinho na planta baixa
       document.querySelectorAll('.map-node').forEach(node => node.classList.remove('active'));
       const activeNode = document.getElementById(scene.nodeId);
       if (activeNode) activeNode.classList.add('active');
     }
 
-    // Inicializa na primeira cena
     goToScene('alpendre');
   </script>
 </body>
