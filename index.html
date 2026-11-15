@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visita Virtual - Museu Casa do Tatuapé</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #121212;
+      color: #eee;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Cabeçalho */
+    header {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      padding: 10px 18px;
+      border-radius: 8px;
+      border-left: 4px solid #c89d5c;
+    }
+    header h1 {
+      font-size: 1.1rem;
+      color: #fff;
+    }
+    header p {
+      font-size: 0.85rem;
+      color: #bbb;
+    }
+
+    /* Contêiner de Visualização */
+    .viewport {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    .scene-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      user-select: none;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Camada de Hotspots Interativos */
+    .hotspots-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .hotspot-btn {
+      position: absolute;
+      pointer-events: auto;
+      transform: translate(-50%, -50%);
+      background: rgba(200, 157, 92, 0.85);
+      color: #fff;
+      border: 2px solid #fff;
+      border-radius: 50px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      transition: all 0.2s ease;
+      animation: pulse 2s infinite;
+    }
+
+    .hotspot-btn:hover {
+      background: #e67e22;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(200, 157, 92, 0.7); }
+      70% { box-shadow: 0 0 0 12px rgba(200, 157, 92, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(200, 157, 92, 0); }
+    }
+
+    /* Planta Baixa Mini-Map */
+    .minimap {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      z-index: 10;
+      width: 210px;
+    }
+    .minimap-title {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .map-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .map-node {
+      fill: #c89d5c;
+      stroke: #fff;
+      stroke-width: 1.5;
+      cursor: pointer;
+    }
+    .map-node.active {
+      fill: #e74c3c;
+      r: 6;
+      stroke: #fff;
+      stroke-width: 2.5;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 id="title">Carregando...</h1>
+    <p id="subtitle">Museu Casa do Tatuapé</p>
+  </header>
+
+  <div class="viewport">
+    <img id="scene-img" class="scene-image" src="" alt="Visão do ambiente">
+    <div id="hotspots" class="hotspots-layer"></div>
+  </div>
+
+  <div class="minimap">
+    <div id="map-label" class="minimap-title">Planta do Térreo</div>
+    <!-- Croqui Simplificado do Térreo -->
+    <svg id="svg-map" class="map-svg" viewBox="0 0 200 220">
+      <rect x="20" y="20" width="160" height="180" fill="#eaeaea" stroke="#444" stroke-width="2"/>
+      <rect x="140" y="60" width="40" height="90" fill="#fbeed9" stroke="#999" stroke-dasharray="2,2"/>
+      <line x1="20" y1="80" x2="140" y2="80" stroke="#777" stroke-width="1.5"/>
+      <line x1="20" y1="140" x2="140" y2="140" stroke="#777" stroke-width="1.5"/>
+      <line x1="65" y1="80" x2="65" y2="140" stroke="#777" stroke-width="1.5"/>
+      <line x1="100" y1="20" x2="100" y2="80" stroke="#777" stroke-width="1.5"/>
+      <line x1="100" y1="140" x2="100" y2="200" stroke="#777" stroke-width="1.5"/>
+
+      <!-- Pontos de Referência na Planta -->
+      <circle id="node-alpendre" class="map-node" cx="160" cy="105" r="4.5" onclick="goToScene('alpendre')"/>
+      <circle id="node-hall" class="map-node" cx="102" cy="110" r="4.5" onclick="goToScene('hall')"/>
+      <circle id="node-corredor" class="map-node" cx="42" cy="110" r="4.5" onclick="goToScene('corredor_oeste')"/>
+      <circle id="node-adm" class="map-node" cx="42" cy="95" r="4.5" onclick="goToScene('sala_adm')"/>
+      <circle id="node-quarto1" class="map-node" cx="120" cy="170" r="4.5" onclick="goToScene('quarto1')"/>
+      <circle id="node-quarto2" class="map-node" cx="60" cy="170" r="4.5" onclick="goToScene('quarto2')"/>
+      <circle id="node-quarto3" class="map-node" cx="60" cy="50" r="4.5" onclick="goToScene('quarto3')"/>
+      <circle id="node-quarto4" class="map-node" cx="120" cy="50" r="4.5" onclick="goToScene('quarto4')"/>
+    </svg>
+  </div>
+
+  <script>
+    // Dicionário com todas as cenas e seus links posicionados (Top/Left em %)
+    const scenes = {
+      alpendre: {
+        title: "Alpendre Este (Entrada)",
+        subtitle: "Pavimento Térreo",
+        image: "imagens/5 detalhe face leste 2.jpg",
+        nodeId: "node-alpendre",
+        hotspots: [
+          { top: "60%", left: "32%", text: "Entrar no Hall ➜", target: "hall" }
+        ]
+      },
+      hall: {
+        title: "Hall de Entrada",
+        subtitle: "Salão Principal - Pavimento Térreo",
+        image: "imagens/17 parede norte do hall de entrada.jpg",
+        nodeId: "node-hall",
+        hotspots: [
+          { top: "52%", left: "35%", text: "Acessar Quarto 3 ➜", target: "quarto3" },
+          { top: "85%", left: "15%", text: "⬅ Corredor Oeste", target: "corredor_oeste" },
+          { top: "85%", left: "85%", text: "Quarto 1 (Sul) ➜", target: "quarto1" },
+          { top: "90%", left: "50%", text: "⬇ Voltar ao Alpendre", target: "alpendre" }
+        ]
+      },
+      corredor_oeste: {
+        title: "Corredor e Saída Oeste",
+        subtitle: "Ala Oeste - Pavimento Térreo",
+        image: "imagens/24 visão da saída oeste.jpg",
+        nodeId: "node-corredor",
+        hotspots: [
+          { top: "85%", left: "50%", text: "➜ Entrar no Hall de Entrada", target: "hall" },
+          { top: "65%", left: "20%", text: "⬅ Sala da Administração", target: "porta_adm" },
+          { top: "90%", left: "20%", text: "⬅ Quarto 2 (Arqueologia)", target: "quarto2" }
+        ]
+      },
+      porta_adm: {
+        title: "Entrada da Sala de Administração",
+        subtitle: "Vão de acesso administrativo",
+        image: "imagens/21 porta da sala de administração.jpg",
+        nodeId: "node-adm",
+        hotspots: [
+          { top: "55%", left: "48%", text: "Entrar na Sala ➜", target: "sala_adm" },
+          { top: "90%", left: "50%", text: "⬇ Voltar ao Corredor", target: "corredor_oeste" }
+        ]
+      },
+      sala_adm: {
+        title: "Sala de Administração",
+        subtitle: "Ala Oeste Técnica",
+        image: "imagens/30 visão janela da sala adm.jpg",
+        nodeId: "node-adm",
+        hotspots: [
+          { top: "90%", left: "50%", text: "⬇ Sair para o Corredor", target: "corredor_oeste" }
+        ]
+      },
+      quarto1: {
+        title: "Quarto 1 Sul",
+        subtitle: "Pavimento Térreo",
+        image: "imagens/9 entrada quarto 1 sul.jpg",
+        nodeId: "node-quarto1",
+        hotspots: [
+          { top: "45%", left: "26%", text: "Subir Escada ⬆", target: "sotao_sul" },
+          { top: "90%", left: "50%", text: "⬇ Voltar ao Hall", target: "hall" }
+        ]
+      },
+      sotao_sul: {
+        title: "Pavimento Superior Sul (Sótão)",
+        subtitle: "Mezanino Superior",
+        image: "imagens/34 visão pavimento superior face sul topo da escada.jpg",
+        nodeId: "node-quarto1",
+        hotspots: [
+          { top: "50%", left: "50%", text: "Avançar no Mezanino ➜", target: "sotao_sul_oeste" },
+          { top: "85%", left: "15%", text: "⬇ Descer para o Quarto 1", target: "quarto1" }
+        ]
+      },
+      sotao_sul_oeste: {
+        title: "Pavimento Superior Sul (Extremidade)",
+        subtitle: "Estrutura do Telhado e Taipa",
+        image: "imagens/36 visão pavimento superior sul lado oeste.jpg",
+        nodeId: "node-quarto1",
+        hotspots: [
+          { top: "85%", left: "50%", text: "⬇ Retornar à Escada", target: "sotao_sul" }
+        ]
+      },
+      quarto2: {
+        title: "Quarto 2 Sul (Núcleo Arqueológico)",
+        subtitle: "Parede sem reboco e Cava",
+        image: "imagens/10 entrada quarto 2 sul parede sem reboco leste.jpg",
+        nodeId: "node-quarto2",
+        hotspots: [
+          { top: "55%", left: "70%", text: "Aproximar da Escavação ➜", target: "quarto2_detalhe" },
+          { top: "90%", left: "50%", text: "⬇ Voltar ao Corredor Oeste", target: "corredor_oeste" }
+        ]
+      },
+      quarto2_detalhe: {
+        title: "Quarto 2 Sul (Cava Arqueológica)",
+        subtitle: "Prospecção do Solo e Alvenaria",
+        image: "imagens/27 visão do quarto 2 sul parede sul e oeste.jpg",
+        nodeId: "node-quarto2",
+        hotspots: [
+          { top: "90%", left: "50%", text: "⬇ Voltar à Entrada do Quarto", target: "quarto2" }
+        ]
+      },
+      quarto3: {
+        title: "Quarto 3 Norte",
+        subtitle: "Salão de Exposições Norte",
+        image: "imagens/25 visao das paredes norte e oeste do quarto 3 norte.jpg",
+        nodeId: "node-quarto3",
+        hotspots: [
+          { top: "45%", left: "52%", text: "Aproximar da Escada ➜", target: "quarto3_escada" },
+          { top: "90%", left: "50%", text: "⬇ Voltar ao Hall", target: "hall" }
+        ]
+      },
+      quarto3_escada: {
+        title: "Escada do Quarto 3 Norte",
+        subtitle: "Acesso ao Sótão Norte",
+        image: "imagens/29 visao escada quarto 3 norte.jpg",
+        nodeId: "node-quarto3",
+        hotspots: [
+          { top: "25%", left: "50%", text: "Subir ao Sótão Norte ⬆", target: "sotao_norte" },
+          { top: "90%", left: "50%", text: "⬇ Voltar ao Quarto 3", target: "quarto3" }
+        ]
+      },
+      sotao_norte: {
+        title: "Pavimento Superior Norte",
+        subtitle: "Mezanino Norte Fechado",
+        image: "imagens/31 visao parede oeste piso superior norte.jpg",
+        nodeId: "node-quarto3",
+        hotspots: [
+          { top: "90%", left: "50%", text: "⬇ Descer para o Quarto 3", target: "quarto3_escada" }
+        ]
+      }
+    };
+
+    function goToScene(sceneKey) {
+      const scene = scenes[sceneKey];
+      if (!scene) return;
+
+      // Atualiza textos
+      document.getElementById('title').innerText = scene.title;
+      document.getElementById('subtitle').innerText = scene.subtitle;
+
+      // Atualiza imagem
+      const img = document.getElementById('scene-img');
+      img.style.opacity = '0.2';
+      setTimeout(() => {
+        img.src = scene.image;
+        img.onload = () => { img.style.opacity = '1'; };
+      }, 150);
+
+      // Atualiza Hotspots
+      const container = document.getElementById('hotspots');
+      container.innerHTML = '';
+      scene.hotspots.forEach(spot => {
+        const btn = document.createElement('button');
+        btn.className = 'hotspot-btn';
+        btn.style.top = spot.top;
+        btn.style.left = spot.left;
+        btn.innerHTML = spot.text;
+        btn.onclick = () => goToScene(spot.target);
+        container.appendChild(btn);
+      });
+
+      // Atualiza pontinho na planta baixa
+      document.querySelectorAll('.map-node').forEach(node => node.classList.remove('active'));
+      const activeNode = document.getElementById(scene.nodeId);
+      if (activeNode) activeNode.classList.add('active');
+    }
+
+    // Inicializa na primeira cena
+    goToScene('alpendre');
+  </script>
+</body>
+</html>
